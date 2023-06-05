@@ -96,8 +96,7 @@ class SKModel(OptimizationApplication):
         Returns:
             configuration of spins
         """
-        configuration = [2 * x - 1 for x in self._result_to_x(result)]
-        return configuration
+        return [2 * x - 1 for x in self._result_to_x(result)]
 
     @property
     def graph(self) -> nx.Graph:

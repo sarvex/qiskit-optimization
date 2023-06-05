@@ -265,11 +265,7 @@ class RecursiveMinimumEigenOptimizer(OptimizationAlgorithm):
                         coeff += problem_.objective.quadratic[i, k]
 
                     # set new coefficient if not too small
-                    if np.abs(coeff) > 1e-10:
-                        problem_.objective.linear[k] = coeff
-                    else:
-                        problem_.objective.linear[k] = 0
-
+                    problem_.objective.linear[k] = coeff if np.abs(coeff) > 1e-10 else 0
                 # 2. replace x_i by -x_j
                 problem_ = problem_.substitute_variables(variables={i: (j, -1)})
                 if problem_.status == QuadraticProgram.Status.INFEASIBLE:

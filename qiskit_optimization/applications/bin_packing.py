@@ -83,8 +83,7 @@ class BinPacking(OptimizationApplication):
                 mdl.sum(self._weights[i] * x[i, j] for i in range(num_items))
                 <= self._max_weight * y[j]
             )
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(self, result: Union[OptimizationResult, np.ndarray]) -> List[List[int]]:
         """Interpret a result as item indices
@@ -100,10 +99,10 @@ class BinPacking(OptimizationApplication):
         num_bins = self._max_number_of_bins
         bins = x[:num_bins]
         items = np.array(x[num_bins:]).reshape((num_items, num_bins))
-        items_in_bins = [
-            [i for i in range(num_items) if bins[j] and items[i, j]] for j in range(num_bins)
+        return [
+            [i for i in range(num_items) if bins[j] and items[i, j]]
+            for j in range(num_bins)
         ]
-        return items_in_bins
 
     @_optionals.HAS_MATPLOTLIB.require_in_call
     def get_figure(self, result: Union[OptimizationResult, np.ndarray]) -> Figure:

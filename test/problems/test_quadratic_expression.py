@@ -38,7 +38,7 @@ class TestQuadraticExpression(QiskitOptimizationTestCase):
                 coefficients_list[min(i, j)][max(i, j)] += i * j
         coefficients_array = np.array(coefficients_list)
         coefficients_dok = dok_matrix(coefficients_list)
-        coefficients_dict_int = {(i, j): v for (i, j), v in coefficients_dok.items()}
+        coefficients_dict_int = dict(coefficients_dok.items())
         coefficients_dict_str = {(f"x{i}", f"x{j}"): v for (i, j), v in coefficients_dok.items()}
 
         for coeffs in [
@@ -90,7 +90,7 @@ class TestQuadraticExpression(QiskitOptimizationTestCase):
                 coefficients_list[min(i, j)][max(i, j)] += i * j
         coefficients_array = np.array(coefficients_list)
         coefficients_dok = dok_matrix(coefficients_list)
-        coefficients_dict_int = {(i, j): v for (i, j), v in coefficients_dok.items()}
+        coefficients_dict_int = dict(coefficients_dok.items())
         coefficients_dict_str = {(f"x{i}", f"x{j}"): v for (i, j), v in coefficients_dok.items()}
 
         for coeffs in [

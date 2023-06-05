@@ -43,9 +43,7 @@ def _int_if_close(val: Union[int, float, np.integer, np.floating]) -> Union[int,
 
     if isinstance(val, int):
         return val
-    if abs(val) <= 1e10 and val.is_integer():
-        return int(val)
-    return val
+    return int(val) if abs(val) <= 1e10 and val.is_integer() else val
 
 
 def _term2str(coeff: float, term: str, is_head: bool) -> str:
@@ -70,17 +68,17 @@ def _term2str(coeff: float, term: str, is_head: bool) -> str:
         else:
             sign = "-" if coeff < 0.0 else "+"
             abs_val = abs(coeff)
-            if isclose(abs_val, 1.0):
-                ret = f"{sign} {term}"
-            else:
-                ret = f"{sign} {_int_if_close(abs_val)}*{term}"
+            ret = (
+                f"{sign} {term}"
+                if isclose(abs_val, 1.0)
+                else f"{sign} {_int_if_close(abs_val)}*{term}"
+            )
+    elif is_head:
+        ret = f"{_int_if_close(coeff)}"
     else:
-        if is_head:
-            ret = f"{_int_if_close(coeff)}"
-        else:
-            sign = "-" if coeff < 0.0 else "+"
-            abs_val = abs(coeff)
-            ret = f"{sign} {_int_if_close(abs_val)}"
+        sign = "-" if coeff < 0.0 else "+"
+        abs_val = abs(coeff)
+        ret = f"{sign} {_int_if_close(abs_val)}"
     return ret
 
 
@@ -185,7 +183,7 @@ def expr2str(
 
     ret = _concatenate_terms(terms, wrap, indent)
     if 0 < truncate < len(ret):
-        ret = ret[:truncate] + "..."
+        ret = f"{ret[:truncate]}..."
     return ret
 
 

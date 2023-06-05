@@ -51,8 +51,7 @@ class NumberPartition(OptimizationApplication):
         mdl.add_constraint(
             mdl.sum(num * (-2 * x[i] + 1) for i, num in enumerate(self._number_set)) == 0
         )
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(self, result: Union[OptimizationResult, np.ndarray]) -> List[List[int]]:
         """Interpret a result as a list of subsets

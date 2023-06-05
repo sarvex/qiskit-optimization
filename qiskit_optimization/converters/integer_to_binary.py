@@ -79,13 +79,12 @@ class IntegerToBinary(QuadraticProgramConverter):
                     self._conv[x] = new_vars
                     for (var_name, _) in new_vars:
                         self._dst.binary_var(var_name)
+                elif x.vartype == Variable.Type.CONTINUOUS:
+                    self._dst.continuous_var(x.lowerbound, x.upperbound, x.name)
+                elif x.vartype == Variable.Type.BINARY:
+                    self._dst.binary_var(x.name)
                 else:
-                    if x.vartype == Variable.Type.CONTINUOUS:
-                        self._dst.continuous_var(x.lowerbound, x.upperbound, x.name)
-                    elif x.vartype == Variable.Type.BINARY:
-                        self._dst.binary_var(x.name)
-                    else:
-                        raise QiskitOptimizationError(f"Unsupported variable type {x.vartype}")
+                    raise QiskitOptimizationError(f"Unsupported variable type {x.vartype}")
 
             self._substitute_int_var()
 
@@ -141,7 +140,7 @@ class IntegerToBinary(QuadraticProgramConverter):
                     quadratic[x.name, z_y] = v * coeff_y
                 linear[x.name] = linear.get(x.name, 0.0) + v * y.lowerbound
 
-            elif x in self._conv and y in self._conv:
+            elif x in self._conv:
                 for z_x, coeff_x in self._conv[x]:
                     for z_y, coeff_y in self._conv[y]:
                         quadratic[z_x, z_y] = v * coeff_x * coeff_y

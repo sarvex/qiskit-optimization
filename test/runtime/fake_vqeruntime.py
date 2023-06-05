@@ -27,7 +27,7 @@ class FakeVQEJob:
     def result(self) -> Dict[str, Any]:
         """Return a VQE result."""
         result = VQERuntimeResult()
-        serialized_result = {
+        return {
             "optimizer_evals": result.optimizer_evals,
             "optimizer_time": result.optimizer_time,
             "optimal_value": result.optimal_value,
@@ -39,7 +39,6 @@ class FakeVQEJob:
             "aux_operator_eigenvalues": result.aux_operator_eigenvalues,
             "optimizer_history": result.optimizer_history,
         }
-        return serialized_result
 
     def job_id(self) -> str:
         """Return a fake job ID."""
@@ -134,9 +133,7 @@ class FakeVQERuntimeProvider(Provider):
 
     def has_service(self, service):
         """Check if a service is available."""
-        if service == "runtime":
-            return True
-        return False
+        return service == "runtime"
 
     @property
     def runtime(self) -> FakeVQERuntime:
@@ -149,9 +146,7 @@ class FakeQAOARuntimeProvider(Provider):
 
     def has_service(self, service):
         """Check if a service is available."""
-        if service == "runtime":
-            return True
-        return False
+        return service == "runtime"
 
     @property
     def runtime(self) -> FakeQAOARuntime:

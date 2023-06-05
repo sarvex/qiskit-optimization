@@ -254,7 +254,7 @@ class GroverOptimizer(OptimizationAlgorithm):
 
                 # Get the next outcome.
                 outcome = self._measure(circuit)
-                k = int(outcome[0:n_key], 2)
+                k = int(outcome[:n_key], 2)
                 v = outcome[n_key : n_key + n_value]
                 int_v = self._bin_to_int(v, n_value) + threshold
                 logger.info("Outcome: %s", outcome)
@@ -269,19 +269,17 @@ class GroverOptimizer(OptimizationAlgorithm):
                     threshold = optimum_value
 
                     # trace out work qubits and store samples
-                    if self._sampler is not None:
+                    if (
+                        self._sampler is None
+                        and self._quantum_instance.is_statevector
+                    ):
+                        indices = list(range(n_key, len(outcome)))
+                        rho = partial_trace(self._circuit_results, indices)
+                        self._circuit_results = cast(Dict, np.diag(rho.data) ** 0.5)
+                    else:
                         self._circuit_results = {
                             i[-1 * n_key :]: v for i, v in self._circuit_results.items()
                         }
-                    else:
-                        if self._quantum_instance.is_statevector:
-                            indices = list(range(n_key, len(outcome)))
-                            rho = partial_trace(self._circuit_results, indices)
-                            self._circuit_results = cast(Dict, np.diag(rho.data) ** 0.5)
-                        else:
-                            self._circuit_results = {
-                                i[-1 * n_key :]: v for i, v in self._circuit_results.items()
-                            }
                     raw_samples = self._eigenvector_to_solutions(
                         self._circuit_results, problem_init
                     )
@@ -389,12 +387,7 @@ class GroverOptimizer(OptimizationAlgorithm):
     @staticmethod
     def _bin_to_int(v: str, num_value_bits: int) -> int:
         """Converts a binary string of n bits using two's complement to an integer."""
-        if v.startswith("1"):
-            int_v = int(v, 2) - 2**num_value_bits
-        else:
-            int_v = int(v, 2)
-
-        return int_v
+        return int(v, 2) - 2**num_value_bits if v.startswith("1") else int(v, 2)
 
 
 class GroverOptimizationResult(OptimizationResult):

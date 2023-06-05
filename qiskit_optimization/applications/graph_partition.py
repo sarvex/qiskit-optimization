@@ -50,8 +50,7 @@ class GraphPartition(GraphOptimizationApplication):
         )
         mdl.minimize(objective)
         mdl.add_constraint(mdl.sum([x[i] for i in x]) == n // 2)
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(self, result: Union[OptimizationResult, np.ndarray]) -> List[List[int]]:
         """Interpret a result as a list of node indices

@@ -167,10 +167,9 @@ class TestDeprecation(QiskitOptimizationTestCase):
         self._source = inspect.getsource(sys.modules[self.__module__]).splitlines()
 
     def _get_line_from_str(self, text: str) -> int:
-        for idx, line in enumerate(self._source):
-            if text in line:
-                return idx + 1
-        return -1
+        return next(
+            (idx + 1 for idx, line in enumerate(self._source) if text in line), -1
+        )
 
     def test_enum_deprecation(self):
         """test enumeration deprecation"""

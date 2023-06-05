@@ -67,8 +67,7 @@ class Clique(GraphOptimizationApplication):
             mdl.maximize(mdl.sum(x[i] for i in x))
         else:
             mdl.add_constraint(mdl.sum(x[i] for i in x) == self.size)
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(self, result: Union[OptimizationResult, np.ndarray]) -> List[int]:
         """Interpret a result as a list of node indices
@@ -80,11 +79,7 @@ class Clique(GraphOptimizationApplication):
             The list of node indices whose corresponding variable is 1
         """
         x = self._result_to_x(result)
-        clique = []
-        for i, value in enumerate(x):
-            if value:
-                clique.append(i)
-        return clique
+        return [i for i, value in enumerate(x) if value]
 
     def _draw_result(
         self,

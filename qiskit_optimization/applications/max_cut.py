@@ -50,8 +50,7 @@ class Maxcut(GraphOptimizationApplication):
             for i, j in self._graph.edges
         )
         mdl.maximize(objective)
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def _draw_result(
         self,

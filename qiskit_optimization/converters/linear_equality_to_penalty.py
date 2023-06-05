@@ -134,8 +134,6 @@ class LinearEqualityToPenalty(QuadraticProgramConverter):
             If a constraint has a float coefficient,
             return the default value for the penalty factor.
         """
-        default_penalty = 1e5
-
         # Check coefficients of constraints.
         # If a constraint has a float coefficient, return the default value for the penalty factor.
         terms = []
@@ -143,6 +141,8 @@ class LinearEqualityToPenalty(QuadraticProgramConverter):
             terms.append(constraint.rhs)
             terms.extend(constraint.linear.to_array().tolist())
         if any(isinstance(term, float) and not term.is_integer() for term in terms):
+            default_penalty = 1e5
+
             logger.warning(
                 "Warning: Using %f for the penalty coefficient because "
                 "a float coefficient exists in constraints. \n"

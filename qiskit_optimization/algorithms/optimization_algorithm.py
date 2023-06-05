@@ -349,9 +349,7 @@ class OptimizationAlgorithm(ABC):
             QiskitOptimizationError: If the problem is incompatible with the optimizer.
 
         """
-        # check compatibility and raise exception if incompatible
-        msg = self.get_compatibility_msg(problem)
-        if msg:
+        if msg := self.get_compatibility_msg(problem):
             raise QiskitOptimizationError(f"Incompatible problem: {msg}")
 
     @staticmethod

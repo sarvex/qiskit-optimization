@@ -40,10 +40,7 @@ class TestIsingTranslator(QiskitOptimizationTestCase):
 
     def assert_deprecation_warning(self, opflow: bool):
         """assert deprecation warning if opflow is used"""
-        if opflow:
-            return self.assertWarns(DeprecationWarning)
-        else:
-            return nullcontext()
+        return self.assertWarns(DeprecationWarning) if opflow else nullcontext()
 
     @data(True, False, None)
     def test_to_ising(self, opflow):

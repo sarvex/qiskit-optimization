@@ -41,7 +41,7 @@ class TestTsp(QiskitOptimizationTestCase):
             self.graph.edges[w, v]["weight"] = np.rint(np.hypot(delta[0], delta[1]))
 
         op = QuadraticProgram()
-        for i in range(16):
+        for _ in range(16):
             op.binary_var()
         self.result = OptimizationResult(
             x=[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],

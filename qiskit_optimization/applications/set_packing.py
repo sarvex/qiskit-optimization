@@ -57,8 +57,7 @@ class SetPacking(OptimizationApplication):
             mdl.add_constraint(
                 mdl.sum(x[i] for i, sub in enumerate(self._subsets) if element in sub) <= 1
             )
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(self, result: Union[OptimizationResult, np.ndarray]) -> List[List[int]]:
         """Interpret a result as a list of subsets
@@ -70,8 +69,4 @@ class SetPacking(OptimizationApplication):
             A list of subsets whose corresponding variable is 1
         """
         x = self._result_to_x(result)
-        sub = []
-        for i, value in enumerate(x):
-            if value:
-                sub.append(self._subsets[i])
-        return sub
+        return [self._subsets[i] for i, value in enumerate(x) if value]

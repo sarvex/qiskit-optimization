@@ -328,21 +328,20 @@ class WarmStartQAOAOptimizer(MinimumEigenOptimizer):
         if len(results) == 1:
             # there's no need to call _interpret, it is already done by MinimumEigenOptimizer
             return results[0]
-        else:
-            samples = self._aggregator.aggregate(results)
-            samples.sort(key=lambda sample: problem.objective.sense.value * sample.fval)
+        samples = self._aggregator.aggregate(results)
+        samples.sort(key=lambda sample: problem.objective.sense.value * sample.fval)
 
-            # translate result back to the original variables
-            return cast(
-                MinimumEigenOptimizationResult,
-                self._interpret(
-                    x=samples[0].x,
-                    problem=problem,
-                    converters=self._converters,
-                    result_class=MinimumEigenOptimizationResult,
-                    samples=samples,
-                ),
-            )
+        # translate result back to the original variables
+        return cast(
+            MinimumEigenOptimizationResult,
+            self._interpret(
+                x=samples[0].x,
+                problem=problem,
+                converters=self._converters,
+                result_class=MinimumEigenOptimizationResult,
+                samples=samples,
+            ),
+        )
 
     @staticmethod
     def _relax_problem(problem: QuadraticProgram) -> QuadraticProgram:

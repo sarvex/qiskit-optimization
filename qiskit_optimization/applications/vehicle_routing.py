@@ -94,14 +94,12 @@ class VehicleRouting(GraphOptimizationApplication):
         node_list = [i for i in range(n) if i != self.depot]
         clique_set = []
         for i in range(2, len(node_list) + 1):
-            for comb in itertools.combinations(node_list, i):
-                clique_set.append(list(comb))
+            clique_set.extend(list(comb) for comb in itertools.combinations(node_list, i))
         for clique in clique_set:
             mdl.add_constraint(
                 mdl.sum(x[(i, j)] for i in clique for j in clique if i != j) <= len(clique) - 1
             )
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(self, result: Union[OptimizationResult, np.ndarray]) -> List[List[List[int]]]:
         """Interpret a result as a list of the routes for each vehicle
@@ -116,12 +114,11 @@ class VehicleRouting(GraphOptimizationApplication):
         n = self._graph.number_of_nodes()
         idx = 0
         edge_list = []
-        for i in range(n):
-            for j in range(n):
-                if i != j:
-                    if x[idx]:
-                        edge_list.append([i, j])
-                    idx += 1
+        for i, j in itertools.product(range(n), range(n)):
+            if i != j:
+                if x[idx]:
+                    edge_list.append([i, j])
+                idx += 1
         route_list = []  # type: List[List[List[int]]]
         for k in range(self.num_vehicles):
             i = 0

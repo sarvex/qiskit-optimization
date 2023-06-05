@@ -166,11 +166,7 @@ class LinearExpression(QuadraticProgramElement):
         # cast input to dok_matrix if it is a dictionary
         x = self._coeffs_to_dok_matrix(x)
 
-        # compute the dot-product of the input and the linear coefficients
-        val = (x @ self.coefficients.transpose())[0, 0]
-
-        # return the result
-        return val
+        return (x @ self.coefficients.transpose())[0, 0]
 
     # pylint: disable=unused-argument
     def evaluate_gradient(self, x: Union[ndarray, List, Dict[Union[int, str], float]]) -> ndarray:

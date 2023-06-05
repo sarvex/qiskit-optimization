@@ -112,14 +112,11 @@ class GoemansWilliamsonOptimizer(OptimizationAlgorithm):
         Returns:
             Returns the incompatibility message. If the message is empty no issues were found.
         """
-        message = ""
-        if problem.get_num_binary_vars() != problem.get_num_vars():
-            message = (
-                f"Only binary variables are supported, while the total number of variables "
-                f"{problem.get_num_vars()} and there are {problem.get_num_binary_vars()} "
-                f"binary variables across them"
-            )
-        return message
+        return (
+            f"Only binary variables are supported, while the total number of variables {problem.get_num_vars()} and there are {problem.get_num_binary_vars()} binary variables across them"
+            if problem.get_num_binary_vars() != problem.get_num_vars()
+            else ""
+        )
 
     def solve(self, problem: QuadraticProgram) -> OptimizationResult:
         """
@@ -253,9 +250,7 @@ class GoemansWilliamsonOptimizer(OptimizationAlgorithm):
         x = cvx.Variable((num_vertices, num_vertices), PSD=True)
 
         # constraints
-        for i in range(num_vertices):
-            constraints.append(x[i, i] == 1)
-
+        constraints.extend(x[i, i] == 1 for i in range(num_vertices))
         # objective function
         expr = cvx.sum(cvx.multiply(adj_matrix, (np.ones((num_vertices, num_vertices)) - x)))
 

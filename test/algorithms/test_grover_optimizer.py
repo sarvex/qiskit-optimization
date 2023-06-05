@@ -68,27 +68,26 @@ class TestGroverOptimizer(QiskitOptimizationTestCase):
     ):
         """Prepare GroverOptimizer."""
         if simulator == "statevector":
-            grover_optimizer = GroverOptimizer(
+            return GroverOptimizer(
                 num_value_qubits=num_value_qubits,
                 num_iterations=num_iterations,
                 converters=converters,
                 quantum_instance=self.sv_simulator,
             )
         elif simulator == "qasm":
-            grover_optimizer = GroverOptimizer(
+            return GroverOptimizer(
                 num_value_qubits=num_value_qubits,
                 num_iterations=num_iterations,
                 converters=converters,
                 quantum_instance=self.qasm_simulator,
             )
         else:
-            grover_optimizer = GroverOptimizer(
+            return GroverOptimizer(
                 num_value_qubits=num_value_qubits,
                 num_iterations=num_iterations,
                 converters=converters,
                 sampler=self.sampler,
             )
-        return grover_optimizer
 
     def validate_results(self, problem, results):
         """Validate the results object returned by GroverOptimizer."""

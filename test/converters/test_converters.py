@@ -353,9 +353,7 @@ class TestConverters(QiskitOptimizationTestCase):
         for i in range(0, 2):
             op.binary_var(name=f"x{i}")
         op.integer_var(name="x2", lowerbound=0, upperbound=5)
-        linear = {}
-        for i, x in enumerate(op.variables):
-            linear[x.name] = i + 1
+        linear = {x.name: i + 1 for i, x in enumerate(op.variables)}
         op.maximize(0, linear, {})
         conv = IntegerToBinary()
         op2 = conv.convert(op)
@@ -375,9 +373,7 @@ class TestConverters(QiskitOptimizationTestCase):
         op.integer_var(name="x2", lowerbound=0, upperbound=5)
         linear = {"x0": 1, "x1": 2, "x2": 1}
         op.maximize(0, linear, {})
-        linear = {}
-        for x in op.variables:
-            linear[x.name] = 1
+        linear = {x.name: 1 for x in op.variables}
         op.linear_constraint(linear, Constraint.Sense.EQ, 6, "x0x1x2")
         conv = IntegerToBinary()
         _ = conv.convert(op)
@@ -389,13 +385,9 @@ class TestConverters(QiskitOptimizationTestCase):
         op = QuadraticProgram()
         for i in range(4):
             op.binary_var(name=f"x{i}")
-        linear = {}
-        for x in op.variables:
-            linear[x.name] = 1
+        linear = {x.name: 1 for x in op.variables}
         op.maximize(0, linear, {})
-        linear = {}
-        for i, x in enumerate(op.variables):
-            linear[x.name] = i + 1
+        linear = {x.name: i + 1 for i, x in enumerate(op.variables)}
         op.linear_constraint(linear, Constraint.Sense.EQ, 3, "sum1")
         penalize = LinearEqualityToPenalty(penalty=1e5)
         op2 = penalize.convert(op)
@@ -623,7 +615,8 @@ class TestConverters(QiskitOptimizationTestCase):
         mod.quadratic_constraint({"x": 1}, {("x", "y"): 2}, "==", 1)
         mod2 = IntegerToBinary().convert(mod)
         self.assertListEqual(
-            [e.name + "@0" for e in mod.variables], [e.name for e in mod2.variables]
+            [f"{e.name}@0" for e in mod.variables],
+            [e.name for e in mod2.variables],
         )
         self.assertDictEqual(mod.objective.linear.to_dict(), mod2.objective.linear.to_dict())
         self.assertDictEqual(mod.objective.quadratic.to_dict(), mod2.objective.quadratic.to_dict())

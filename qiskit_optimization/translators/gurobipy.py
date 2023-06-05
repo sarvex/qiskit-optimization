@@ -83,14 +83,15 @@ def to_gurobipy(quadratic_program: QuadraticProgram) -> Model:
         mdl.setObjective(objective, sense=gp.GRB.MAXIMIZE)
 
     # add linear constraints
-    for i, l_constraint in enumerate(quadratic_program.linear_constraints):
+    for l_constraint in quadratic_program.linear_constraints:
         name = l_constraint.name
         rhs = l_constraint.rhs
         if rhs == 0 and l_constraint.linear.coefficients.nnz == 0:
             continue
-        linear_expr = 0
-        for j, v in l_constraint.linear.to_dict().items():
-            linear_expr += v * var[cast(int, j)]
+        linear_expr = sum(
+            v * var[cast(int, j)]
+            for j, v in l_constraint.linear.to_dict().items()
+        )
         sense = l_constraint.sense
         if sense == Constraint.Sense.EQ:
             mdl.addConstr(linear_expr == rhs, name=name)
@@ -103,7 +104,7 @@ def to_gurobipy(quadratic_program: QuadraticProgram) -> Model:
             raise QiskitOptimizationError(f"Unsupported constraint sense: {sense}")
 
     # add quadratic constraints
-    for i, q_constraint in enumerate(quadratic_program.quadratic_constraints):
+    for q_constraint in quadratic_program.quadratic_constraints:
         name = q_constraint.name
         rhs = q_constraint.rhs
         if (
@@ -112,9 +113,10 @@ def to_gurobipy(quadratic_program: QuadraticProgram) -> Model:
             and q_constraint.quadratic.coefficients.nnz == 0
         ):
             continue
-        quadratic_expr = 0
-        for j, v in q_constraint.linear.to_dict().items():
-            quadratic_expr += v * var[cast(int, j)]
+        quadratic_expr = sum(
+            v * var[cast(int, j)]
+            for j, v in q_constraint.linear.to_dict().items()
+        )
         for (j, k), v in q_constraint.quadratic.to_dict().items():
             quadratic_expr += v * var[cast(int, j)] * var[cast(int, k)]
         sense = q_constraint.sense
@@ -196,11 +198,10 @@ def from_gurobipy(model: Model) -> QuadraticProgram:
     # Get the constant
     constant = linear_part.getConstant()
 
-    # get linear part of objective
-    linear = {}
-    for i in range(linear_part.size()):
-        linear[var_names[linear_part.getVar(i)]] = linear_part.getCoeff(i)
-
+    linear = {
+        var_names[linear_part.getVar(i)]: linear_part.getCoeff(i)
+        for i in range(linear_part.size())
+    }
     # get quadratic part of objective
     quadratic = {}
     if has_quadratic_objective:
@@ -228,10 +229,10 @@ def from_gurobipy(model: Model) -> QuadraticProgram:
         left_expr = model.getRow(constraint)
         rhs = constraint.RHS
 
-        lhs = {}
-        for i in range(left_expr.size()):
-            lhs[var_names[left_expr.getVar(i)]] = left_expr.getCoeff(i)
-
+        lhs = {
+            var_names[left_expr.getVar(i)]: left_expr.getCoeff(i)
+            for i in range(left_expr.size())
+        }
         if sense == gp.GRB.EQUAL:
             quadratic_program.linear_constraint(lhs, "==", rhs, name)
         elif sense == gp.GRB.GREATER_EQUAL:
@@ -249,13 +250,13 @@ def from_gurobipy(model: Model) -> QuadraticProgram:
         left_expr = model.getQCRow(constraint)
         rhs = constraint.QCRHS
 
-        linear = {}
         quadratic = {}
 
         linear_part = left_expr.getLinExpr()
-        for i in range(linear_part.size()):
-            linear[var_names[linear_part.getVar(i)]] = linear_part.getCoeff(i)
-
+        linear = {
+            var_names[linear_part.getVar(i)]: linear_part.getCoeff(i)
+            for i in range(linear_part.size())
+        }
         for i in range(left_expr.size()):
             x = var_names[left_expr.getVar1(i)]
             y = var_names[left_expr.getVar2(i)]

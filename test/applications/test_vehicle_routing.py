@@ -39,7 +39,7 @@ class TestVehicleRouting(QiskitOptimizationTestCase):
             ]
             self.graph.edges[w, v]["weight"] = np.rint(np.hypot(delta[0], delta[1]))
         op = QuadraticProgram()
-        for i in range(12):
+        for _ in range(12):
             op.binary_var()
         self.result = OptimizationResult(
             x=[1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0],

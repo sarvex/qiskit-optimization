@@ -407,12 +407,11 @@ class ADMMOptimizer(OptimizationAlgorithm):
         Returns:
             List of indices.
         """
-        indices = []
-        for i, variable in enumerate(op.variables):
-            if variable.vartype == var_type:
-                indices.append(i)
-
-        return indices
+        return [
+            i
+            for i, variable in enumerate(op.variables)
+            if variable.vartype == var_type
+        ]
 
     def _get_current_solution(self) -> np.ndarray:
         """
@@ -589,7 +588,7 @@ class ADMMOptimizer(OptimizationAlgorithm):
             matrix.append(row)
             vector.append(constraint.rhs)
 
-        if len(matrix) != 0:
+        if matrix:
             np_matrix = np.array(matrix)
             np_vector = np.array(vector)
         else:
@@ -789,11 +788,10 @@ class ADMMOptimizer(OptimizationAlgorithm):
             Violation of the constraints as a float value
         """
         solution = self._get_current_solution()
-        # equality constraints
-        cr_eq = 0
-        for constraint in self._state.equality_constraints:
-            cr_eq += np.abs(constraint.evaluate(solution) - constraint.rhs)
-
+        cr_eq = sum(
+            np.abs(constraint.evaluate(solution) - constraint.rhs)
+            for constraint in self._state.equality_constraints
+        )
         # inequality constraints
         cr_ineq = 0.0
         for constraint in self._state.inequality_constraints:

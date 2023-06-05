@@ -23,8 +23,7 @@ if not hasattr(setuptools, "find_namespace_packages") or not inspect.ismethod(
     setuptools.find_namespace_packages
 ):
     print(
-        "Your setuptools version:'{}' does not support PEP 420 (find_namespace_packages). "
-        "Upgrade it to version >='40.1.0' and repeat install.".format(setuptools.__version__)
+        f"Your setuptools version:'{setuptools.__version__}' does not support PEP 420 (find_namespace_packages). Upgrade it to version >='40.1.0' and repeat install."
     )
     sys.exit(1)
 

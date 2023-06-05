@@ -79,8 +79,7 @@ class OptimizationApplication(ABC):
         if isinstance(state_vector, QuasiDistribution):
             probabilities = state_vector.binary_probabilities()
             binary_string = max(probabilities.items(), key=lambda kv: kv[1])[0]
-            x = np.asarray([int(y) for y in reversed(list(binary_string))])
-            return x
+            return np.asarray([int(y) for y in reversed(list(binary_string))])
         elif isinstance(state_vector, Statevector):
             probabilities = state_vector.probabilities()
             n = state_vector.num_qubits
@@ -93,12 +92,10 @@ class OptimizationApplication(ABC):
         elif isinstance(state_vector, (OrderedDict, dict)):
             # get the binary string with the largest count
             binary_string = max(state_vector.items(), key=lambda kv: kv[1])[0]
-            x = np.asarray([int(y) for y in reversed(list(binary_string))])
-            return x
+            return np.asarray([int(y) for y in reversed(list(binary_string))])
         elif isinstance(state_vector, StateFn):
             binary_string = list(state_vector.sample().keys())[0]
-            x = np.asarray([int(y) for y in reversed(list(binary_string))])
-            return x
+            return np.asarray([int(y) for y in reversed(list(binary_string))])
         elif isinstance(state_vector, np.ndarray):
             n = int(np.log2(state_vector.shape[0]))
             k = np.argmax(np.abs(state_vector))

@@ -162,21 +162,16 @@ class _FromDocplexMp:
             self._var_bounds[x.name] = (x_new.lowerbound, x_new.upperbound)
 
     def _linear_expr(self, expr: AbstractLinearExpr) -> Dict[str, float]:
-        # AbstractLinearExpr is a parent of LinearExpr, ConstantExpr, and ZeroExpr
-        linear = {}
-        for x, coeff in expr.iter_terms():
-            linear[self._var_names[x]] = coeff
-        return linear
+        return {self._var_names[x]: coeff for x, coeff in expr.iter_terms()}
 
     def _quadratic_expr(
         self, expr: QuadExpr
     ) -> Tuple[Dict[str, float], Dict[Tuple[str, str], float]]:
         linear = self._linear_expr(expr.get_linear_part())
-        quad = {}
-        for x, y, coeff in expr.iter_quad_triplets():
-            i = self._var_names[x]
-            j = self._var_names[y]
-            quad[i, j] = coeff
+        quad = {
+            (self._var_names[x], self._var_names[y]): coeff
+            for x, y, coeff in expr.iter_quad_triplets()
+        }
         return linear, quad
 
     def quadratic_program(self, indicator_big_m: Optional[float]) -> QuadraticProgram:
@@ -355,7 +350,7 @@ class _FromDocplexMp:
                 # rhs += big_m * binary_var
                 linear2 = self._subtract(linear, {binary_var.name: big_m})
                 rhs2 = rhs
-            name2 = name + "_LE" if sense == "==" else name
+            name2 = f"{name}_LE" if sense == "==" else name
             ret.append((linear2, "<=", rhs2, name2))
         if sense in [">=", "=="]:
             big_m = max(0.0, rhs - linear_lb) if indicator_big_m is None else indicator_big_m
@@ -367,7 +362,7 @@ class _FromDocplexMp:
                 # rhs += -big_m * binary_var
                 linear2 = self._subtract(linear, {binary_var.name: -big_m})
                 rhs2 = rhs
-            name2 = name + "_GE" if sense == "==" else name
+            name2 = f"{name}_GE" if sense == "==" else name
             ret.append((linear2, ">=", rhs2, name2))
         if sense not in ["<=", ">=", "=="]:
             raise QiskitOptimizationError(
@@ -413,12 +408,15 @@ def from_docplex_mp(model: Model, indicator_big_m: Optional[float] = None) -> Qu
     # check constraint type
     for constraint in model.iter_constraints():
         # If any constraint is not linear/quadratic/indicator constraints, it raises an error.
-        if isinstance(constraint, LinearConstraint):
-            if isinstance(constraint, NotEqualConstraint):
-                # Notice that NotEqualConstraint is a subclass of Docplex's LinearConstraint,
-                # but it cannot be handled by optimization.
-                raise QiskitOptimizationError(f"Unsupported constraint: {constraint}")
-        elif not isinstance(constraint, (QuadraticConstraint, IndicatorConstraint)):
+        if (
+            isinstance(constraint, LinearConstraint)
+            and isinstance(constraint, NotEqualConstraint)
+            or not isinstance(constraint, LinearConstraint)
+            and not isinstance(
+                constraint, (QuadraticConstraint, IndicatorConstraint)
+            )
+        ):
+            # Notice that NotEqualConstraint is a subclass of Docplex's LinearConstraint,
+            # but it cannot be handled by optimization.
             raise QiskitOptimizationError(f"Unsupported constraint: {constraint}")
-
     return _FromDocplexMp(model).quadratic_program(indicator_big_m)

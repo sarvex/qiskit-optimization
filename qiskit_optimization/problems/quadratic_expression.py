@@ -204,11 +204,7 @@ class QuadraticExpression(QuadraticProgramElement):
         """
         x = self._cast_as_array(x)
 
-        # compute x * Q * x for the quadratic expression
-        val = x @ self.coefficients @ x
-
-        # return the result
-        return val
+        return x @ self.coefficients @ x
 
     def evaluate_gradient(self, x: Union[ndarray, List, Dict[Union[int, str], float]]) -> ndarray:
         """Evaluate the gradient of the quadratic expression for given variables.
@@ -221,11 +217,7 @@ class QuadraticExpression(QuadraticProgramElement):
         """
         x = self._cast_as_array(x)
 
-        # compute (Q' + Q) * x for the quadratic expression
-        val = (self.coefficients.transpose() + self.coefficients) @ x
-
-        # return the result
-        return val
+        return (self.coefficients.transpose() + self.coefficients) @ x
 
     def _cast_as_array(
         self, x: Union[ndarray, List, Dict[Union[int, str], float]]

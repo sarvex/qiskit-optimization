@@ -464,7 +464,9 @@ class TestQuadraticProgram(QiskitOptimizationTestCase):
             z = quadratic_program.get_variable(x.name)
             self.assertEqual(x.name, y.name)
             self.assertEqual(x.name, z.name)
-        self.assertDictEqual(quadratic_program.variables_index, {"x" + str(i): i for i in range(6)})
+        self.assertDictEqual(
+            quadratic_program.variables_index, {f"x{str(i)}": i for i in range(6)}
+        )
 
     def test_linear_constraints_handling(self):
         """test linear constraints handling"""
@@ -1094,7 +1096,7 @@ class TestQuadraticProgram(QiskitOptimizationTestCase):
         q_p = QuadraticProgram()
 
         with self.assertWarns(UserWarning):
-            q_p.binary_var(name + "bin")
+            q_p.binary_var(f"{name}bin")
 
         with self.assertWarns(UserWarning):
             q_p.binary_var_list(10, name)
@@ -1103,7 +1105,7 @@ class TestQuadraticProgram(QiskitOptimizationTestCase):
             q_p.binary_var_dict(10, name)
 
         with self.assertWarns(UserWarning):
-            q_p.integer_var(0, 1, name + "int")
+            q_p.integer_var(0, 1, f"{name}int")
 
         with self.assertWarns(UserWarning):
             q_p.integer_var_list(10, 0, 1, name)
@@ -1112,7 +1114,7 @@ class TestQuadraticProgram(QiskitOptimizationTestCase):
             q_p.integer_var_dict(10, 0, 1, name)
 
         with self.assertWarns(UserWarning):
-            q_p.continuous_var(0, 1, name + "cont")
+            q_p.continuous_var(0, 1, f"{name}cont")
 
         with self.assertWarns(UserWarning):
             q_p.continuous_var_list(10, 0, 1, name)

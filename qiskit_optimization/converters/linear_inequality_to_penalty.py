@@ -225,18 +225,16 @@ class LinearInequalityToPenalty(QuadraticProgramConverter):
                     f"Internal error: invalid number of variables {num_vars} {constraint.name}"
                 )
             quadratic = np.array([[0, -1], [0, 0]])
-            if sense == ConstraintSense.GE:
-                # x >= y case
-                if coeffs[0] < 0.0:
-                    linear[0] = 1
-                else:
-                    linear[1] = 1
-            elif sense == ConstraintSense.LE:
-                # x <= y case
-                if coeffs[0] > 0.0:
-                    linear[0] = 1
-                else:
-                    linear[1] = 1
+            if (
+                sense == ConstraintSense.GE
+                and coeffs[0] < 0.0
+                or sense != ConstraintSense.GE
+                and sense == ConstraintSense.LE
+                and coeffs[0] > 0.0
+            ):
+                linear[0] = 1
+            elif sense in [ConstraintSense.GE, ConstraintSense.LE]:
+                linear[1] = 1
         else:
             raise QiskitOptimizationError(f"Internal error: invalid constraint {constraint.name}")
 
@@ -289,8 +287,6 @@ class LinearInequalityToPenalty(QuadraticProgramConverter):
             return the default value for the penalty factor.
         """
 
-        default_penalty = 1e5
-
         # Check coefficients of constraints.
         # If a constraint has a float coefficient, return the default value for the penalty factor.
         terms = []
@@ -298,6 +294,8 @@ class LinearInequalityToPenalty(QuadraticProgramConverter):
             terms.append(constraint.rhs)
             terms.extend(constraint.linear.to_array().tolist())
         if any(isinstance(term, float) and not term.is_integer() for term in terms):
+            default_penalty = 1e5
+
             logger.warning(
                 "Warning: Using %f for the penalty coefficient because "
                 "a float coefficient exists in constraints. \n"

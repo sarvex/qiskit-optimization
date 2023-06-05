@@ -57,8 +57,7 @@ class Tsp(GraphOptimizationApplication):
             mdl.add_constraint(mdl.sum(x[(i, k)] for k in range(n)) == 1)
         for k in range(n):
             mdl.add_constraint(mdl.sum(x[(i, k)] for i in range(n)) == 1)
-        op = from_docplex_mp(mdl)
-        return op
+        return from_docplex_mp(mdl)
 
     def interpret(
         self, result: Union[OptimizationResult, np.ndarray]
@@ -75,10 +74,7 @@ class Tsp(GraphOptimizationApplication):
         n = int(np.sqrt(len(x)))
         route = []  # type: List[Union[int, List[int]]]
         for p__ in range(n):
-            p_step = []
-            for i in range(n):
-                if x[i * n + p__]:
-                    p_step.append(i)
+            p_step = [i for i in range(n) if x[i * n + p__]]
             if len(p_step) == 1:
                 route.extend(p_step)
             else:

@@ -155,26 +155,27 @@ class _SubstituteVariables:
         """Checks feasibility of the following condition
         0 `sense` rhs
         """
-        if sense == ConstraintSense.EQ:
-            if rhs == 0:
-                return True
-        elif sense == ConstraintSense.LE:
-            if rhs >= 0:
-                return True
-        elif sense == ConstraintSense.GE:
-            if rhs <= 0:
-                return True
-        return False
+        return (
+            sense == ConstraintSense.EQ
+            and rhs == 0
+            or sense != ConstraintSense.EQ
+            and sense == ConstraintSense.LE
+            and rhs >= 0
+            or sense != ConstraintSense.EQ
+            and sense != ConstraintSense.LE
+            and sense == ConstraintSense.GE
+            and rhs <= 0
+        )
 
     def _variables(self) -> bool:
         # copy variables that are not replaced
         feasible = True
         for var in self._src.variables:
             name = var.name
-            vartype = var.vartype
             lowerbound = var.lowerbound
             upperbound = var.upperbound
             if name not in self._subs:
+                vartype = var.vartype
                 self._dst._add_variable(lowerbound, upperbound, vartype, name)
 
         for i, expr in self._subs.items():
@@ -285,10 +286,9 @@ class _SubstituteVariables:
                     sense=lin_cst.sense,
                     rhs=rhs,
                 )
-            else:
-                if not self._feasible(lin_cst.sense, rhs):
-                    logger.warning("constraint %s is infeasible due to substitution", lin_cst.name)
-                    feasible = False
+            elif not self._feasible(lin_cst.sense, rhs):
+                logger.warning("constraint %s is infeasible due to substitution", lin_cst.name)
+                feasible = False
         return feasible
 
     def _quadratic_constraints(self) -> bool:
@@ -308,13 +308,12 @@ class _SubstituteVariables:
                     rhs=rhs,
                 )
             elif linear.nnz > 0:
+                lin_names = {lin.name for lin in self._dst.linear_constraints}
                 name = quad_cst.name
-                lin_names = set(lin.name for lin in self._dst.linear_constraints)
                 while name in lin_names:
-                    name = "_" + name
+                    name = f"_{name}"
                 self._dst.linear_constraint(name=name, linear=linear, sense=quad_cst.sense, rhs=rhs)
-            else:
-                if not self._feasible(quad_cst.sense, rhs):
-                    logger.warning("constraint %s is infeasible due to substitution", quad_cst.name)
-                    feasible = False
+            elif not self._feasible(quad_cst.sense, rhs):
+                logger.warning("constraint %s is infeasible due to substitution", quad_cst.name)
+                feasible = False
         return feasible

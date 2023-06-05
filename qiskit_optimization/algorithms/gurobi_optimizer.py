@@ -120,14 +120,10 @@ class GurobiOptimizer(OptimizationAlgorithm):
         except gp.GurobiError as ex:
             raise QiskitOptimizationError(str(ex)) from ex
 
-        # create results
-        result = OptimizationResult(
+        return OptimizationResult(
             x=model.X,
             fval=model.ObjVal,
             variables=problem.variables,
             status=self._get_feasibility_status(problem, model.X),
             raw_results=model,
         )
-
-        # return solution
-        return result
